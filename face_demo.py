@@ -1,6 +1,10 @@
 import face_recognition
 import cv2
 import os
+import numpy as np
+
+def norm_l2(x):
+    return np.sqrt(sum(x**2))
 
 def face(path):
     #存储知道人名列表
@@ -28,7 +32,14 @@ def face(path):
             face_encodings = face_recognition.face_encodings(rgb_frame, face_locations) #获得人脸特征值
             face_names = [] #存储出现在画面中人脸的名字
             for face_encoding in face_encodings:         
-                matches = face_recognition.compare_faces(known_encodings, face_encoding,tolerance=0.4)
+                #matches = face_recognition.compare_faces(known_encodings, face_encoding,tolerance=0.5)
+                
+                # l2 范数表示特征距离
+                tolerance=0.4
+                matches = [norm_l2(known_encoding-face_encoding) <= tolerance for known_encoding in  known_encodings]
+                # 余弦相似度测试效果
+                #matches = [np.cos(known_encoding,face_encoding) <= tolerance for known_encoding in  known_encodings]
+                
                 if True in matches:
                     print(matches)
                     print(f"known_names: {known_names}")
